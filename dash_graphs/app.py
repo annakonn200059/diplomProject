@@ -26,33 +26,38 @@ default_stylesheet = [
 dash_app.layout = html.Div([
     html.Div([
         html.Div([
-            html.Label("Вариант построения:"),
-            dcc.Dropdown(
-                id='dropdown-mode',
-                value='одна решетка',
-                clearable=False,
-                options=[
-                    {'label': name.capitalize(), 'value': name}
-                    for name in ['одна решетка', 'несколько решеток']
-                ]
-            )
-        ], className='dropdown'),
-        html.Div([
-            html.Label("Введите количество вершин:"),
             html.Div([
-                dcc.Input(id='n-source', type='text', placeholder='n', className='input')
-            ])
-        ], className='matrix_input_container'),
-        html.Div([
-            html.Label("Введите турнир в верхней матричной форме:"),
+                html.Label("Вариант построения:"),
+                dcc.Dropdown(
+                    id='dropdown-mode',
+                    value='одна решетка',
+                    clearable=False,
+                    options=[
+                        {'label': name.capitalize(), 'value': name}
+                        for name in ['одна решетка', 'несколько решеток']
+                    ]
+                )
+            ], className='dropdown'),
             html.Div([
-                dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
+                html.Label("Введите количество вершин:"),
+                html.Div([
+                    dcc.Input(id='n-source', type='text', placeholder='n', className='input')
+                ])
+            ], className='matrix_input_container'),
+            html.Div([
+                html.Label("Введите турнир в верхней матричной форме:"),
+                html.Div([
+                    dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
+                ])
+            ], className='matrix_input_container'),
+            html.Div([
+                html.Button('Построить', id='construct-button')
             ])
-        ], className='matrix_input_container'),
-        html.Div([
-            html.Button('Построить', id='construct-button')
-        ])
-    ], className='control_container'),
+        ], className='control_container'),
+
+
+        html.Div([], id="characteristics", className='characteristics_container')
+    ], className='control_container', style={'justify-content': 'space-between'}),
     html.Div([
         html.Label("Турнир:"),
         cyto.Cytoscape(
@@ -69,14 +74,16 @@ dash_app.layout = html.Div([
             elements=[],
             layout={'name': 'circle'},
         )
-    ], className='graph_container'),
+    ], className='graph_container')
 ], className='container')
 
 
 @dash_app.callback(
     [
         Output('tournament', 'elements'),
-        Output('lattice', 'elements')
+        Output('lattice', 'elements'),
+        Output('characteristics', 'style'),
+        Output('characteristics', 'children'),
     ],
     Input('construct-button', 'n_clicks'),
     State('matrix-source', 'value'),
@@ -88,8 +95,15 @@ def update_graph(n_clicks, matrix_value, n_value, tournament_elements, lattice_e
     if n_clicks and n_clicks > 0:
         tournament_elements, lattice_elements, lattice_width, lattice_height, lattice_order = \
             get_lattice_from_upper_matrix(matrix_value, n_value)
+        return tournament_elements, lattice_elements, {'display': 'block'}, \
+        [
+            html.Label("Характеристики решетки:", className="h5", style={"margin-bottom": "15px"}),
+            html.P([f'Порядок: ', html.P(lattice_order, className="h6")], className="inline_p"),
+            html.P([f'Ширина: ', html.P(lattice_width, className="h6")], className="inline_p"),
+            html.P([f'Высота: ', html.P(lattice_height, className="h6")], className="inline_p")
+        ]
 
-    return tournament_elements, lattice_elements
+    return tournament_elements, lattice_elements, {'display': 'none'}, None
 
 
 def app():
