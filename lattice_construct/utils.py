@@ -23,17 +23,17 @@ def fill_dict(dict, el, upper_matrix_form):
 
 
 def edges_to_cytoscape_format(edges):
-    # Создаем множество узлов
+    # Создаем множество нод
     nodes = set()
     for edge in edges:
         nodes.add(edge[0])
         nodes.add(edge[1])
 
-    # Преобразуем узлы в требуемый формат
+    # Преобразуем ноды в формат для Cytoscape
     node_elements = [{'data': {'id': str(node), 'label': str(node)}} for node in nodes]
 
-    # Преобразуем рёбра в требуемый формат
+    # Преобразуем дуги в формат для Cytoscape
     edge_elements = [{'data': {'source': str(edge[0]), 'target': str(edge[1])}} for edge in edges]
 
-    # Объединяем узлы и рёбра
+    # Объединяем узлы и дуги
     return node_elements + edge_elements

@@ -50,3 +50,7 @@
 .inline_p p {
     margin-bottom: 0;
 }
+
+.error-text {
+    color: red;
+}

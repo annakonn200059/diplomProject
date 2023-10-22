@@ -1,3 +1,5 @@
+import re
+
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
@@ -42,13 +44,15 @@ dash_app.layout = html.Div([
                 html.Label("Введите количество вершин:"),
                 html.Div([
                     dcc.Input(id='n-source', type='text', placeholder='n', className='input')
-                ])
+                ]),
+                html.Div([], id='n_input_error', className='error-text'),
             ], className='matrix_input_container'),
             html.Div([
                 html.Label("Введите турнир в верхней матричной форме:"),
                 html.Div([
                     dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
-                ])
+                ]),
+                html.Div([], id='matrix_input_error', className='error-text')
             ], className='matrix_input_container'),
             html.Div([
                 html.Button('Построить', id='construct-button')
@@ -80,19 +84,44 @@ dash_app.layout = html.Div([
 
 @dash_app.callback(
     [
+        Output('n_input_error', 'style'),
+        Output('n_input_error', 'children'),
+    ],
+    Input('construct-button', 'n_clicks'),
+    State('n-source', 'value')
+)
+def update_n_errors(n_clicks, n_value):
+    if n_clicks and n_clicks > 0:
+        if not re.match(r'^\d+$', n_value):
+            return {'display': 'block'}, [html.P('n должно быть числом')]
+
+        if int(n_value) > 6:
+            return {'display': 'block'}, [html.P('Количество вершин ограничено 6')]
+
+    return {'display': 'none'}, None
+
+
+@dash_app.callback(
+    [
         Output('tournament', 'elements'),
         Output('lattice', 'elements'),
         Output('characteristics', 'style'),
         Output('characteristics', 'children'),
     ],
-    Input('construct-button', 'n_clicks'),
+    Input('n_input_error', 'children'),
+    State('construct-button', 'n_clicks'),
     State('matrix-source', 'value'),
     State('n-source', 'value'),
     State('tournament', 'elements'),
     State('lattice', 'elements'),
+    State('characteristics', 'style'),
+    State('characteristics', 'children'),
 )
-def update_graph(n_clicks, matrix_value, n_value, tournament_elements, lattice_elements):
-    if n_clicks and n_clicks > 0:
+def update_graph(n_error, n_clicks, matrix_value, n_value, tournament_elements, lattice_elements, characteristics_style, characteristics_children):
+    if n_error:
+        return tournament_elements, lattice_elements, characteristics_style, characteristics_children
+
+    if n_clicks and int(n_clicks) > 0:
         tournament_elements, lattice_elements, lattice_width, lattice_height, lattice_order = \
             get_lattice_from_upper_matrix(matrix_value, n_value)
         return tournament_elements, lattice_elements, {'display': 'block'}, \
