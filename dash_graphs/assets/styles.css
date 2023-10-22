@@ -1,0 +1,36 @@
+@import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+
+.container {
+    padding: 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+}
+
+.control_container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.matrix_input_container {
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown {
+    margin-Bottom: 10px;
+    max-width: 200px;
+}
+
+.input {
+    max-width: 200px;
+    height: 34px;
+}
+
+.graph_container {
+    border-left: 2px solid black;
+    padding: 0 25px;
+}
