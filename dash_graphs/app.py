@@ -5,6 +5,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import dash_cytoscape as cyto
 
+from dash_graphs.utils import get_image
 from lattice_construct.app import get_lattice_from_upper_matrix
 
 dash_app = dash.Dash(__name__)
@@ -59,27 +60,62 @@ dash_app.layout = html.Div([
             ])
         ], className='control_container'),
 
-
         html.Div([], id="characteristics", className='characteristics_container')
     ], className='control_container', style={'justify-content': 'space-between'}),
     html.Div([
-        html.Label("Турнир:"),
+        html.Div([
+            html.Label("Турнир:"),
+            html.Button('import as jpg', id='import-tournament-button', disabled=True),
+        ], className='title_container'),
         cyto.Cytoscape(
             id='tournament',
             elements=[],
             layout={'name': 'circle'},
             stylesheet=default_stylesheet,
+            # style={'width': '100%'}
         )
     ], className='graph_container'),
     html.Div([
-        html.Label("Решетка:"),
+        html.Div([
+            html.Label("Решетка:"),
+            html.Button('import as jpg', id='import-lattice-button', disabled=True),
+        ], className='title_container'),
         cyto.Cytoscape(
             id='lattice',
             elements=[],
             layout={'name': 'circle'},
+            # style={'width': '100%'}
         )
     ], className='graph_container')
 ], className='container')
+
+
+@dash_app.callback(
+    [
+        Output("tournament", "generateImage"),
+        Output('import-tournament-button', 'disabled')
+    ],
+    [
+        Input('import-tournament-button', 'n_clicks'),
+        Input('tournament', 'elements')
+    ]
+)
+def tournament_image(get_jpg_clicks, elements):
+    return get_image(get_jpg_clicks, elements)
+
+
+@dash_app.callback(
+    [
+        Output("lattice", "generateImage"),
+        Output('import-lattice-button', 'disabled')
+    ],
+    [
+        Input('import-lattice-button', 'n_clicks'),
+        Input('lattice', 'elements')
+    ]
+)
+def lattice_image(get_jpg_clicks, elements):
+    return get_image(get_jpg_clicks, elements)
 
 
 @dash_app.callback(
@@ -101,23 +137,38 @@ def update_n_errors(n_clicks, n_value):
     return {'display': 'none'}, None
 
 
-@dash_app.callback(
-    [
-        Output('tournament', 'elements'),
-        Output('lattice', 'elements'),
-        Output('characteristics', 'style'),
-        Output('characteristics', 'children'),
+@dash_app.callback([
+    Output('tournament', 'elements'),
+    Output('lattice', 'elements'),
+    Output('characteristics', 'style'),
+    Output('characteristics', 'children'),
     ],
+    [
     Input('n_input_error', 'children'),
-    State('construct-button', 'n_clicks'),
+    Input('construct-button', 'n_clicks'),
+    Input('dropdown-mode', 'value')
+    ],
+    [
     State('matrix-source', 'value'),
     State('n-source', 'value'),
     State('tournament', 'elements'),
     State('lattice', 'elements'),
     State('characteristics', 'style'),
     State('characteristics', 'children'),
+    ]
 )
-def update_graph(n_error, n_clicks, matrix_value, n_value, tournament_elements, lattice_elements, characteristics_style, characteristics_children):
+def update_graph(n_error, n_clicks, dropdown_value, matrix_value, n_value, tournament_elements,
+                 lattice_elements, characteristics_style, characteristics_children):
+    ctx = dash.callback_context
+
+    if not ctx.triggered:
+        raise dash.exceptions.PreventUpdate
+    else:
+        trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if trigger_id == 'dropdown-mode' and dropdown_value == 'несколько решеток':
+        return [], [], characteristics_style, characteristics_children
+
     if n_error:
         return tournament_elements, lattice_elements, characteristics_style, characteristics_children
 
@@ -125,12 +176,12 @@ def update_graph(n_error, n_clicks, matrix_value, n_value, tournament_elements, 
         tournament_elements, lattice_elements, lattice_width, lattice_height, lattice_order = \
             get_lattice_from_upper_matrix(matrix_value, n_value)
         return tournament_elements, lattice_elements, {'display': 'block'}, \
-        [
-            html.Label("Характеристики решетки:", className="h5", style={"margin-bottom": "15px"}),
-            html.P([f'Порядок: ', html.P(lattice_order, className="h6")], className="inline_p"),
-            html.P([f'Ширина: ', html.P(lattice_width, className="h6")], className="inline_p"),
-            html.P([f'Высота: ', html.P(lattice_height, className="h6")], className="inline_p")
-        ]
+               [
+                   html.Label("Характеристики решетки:", className="h5", style={"margin-bottom": "15px"}),
+                   html.P([f'Порядок: ', html.P(lattice_order, className="h6")], className="inline_p"),
+                   html.P([f'Ширина: ', html.P(lattice_width, className="h6")], className="inline_p"),
+                   html.P([f'Высота: ', html.P(lattice_height, className="h6")], className="inline_p")
+               ]
 
     return tournament_elements, lattice_elements, {'display': 'none'}, None
 
