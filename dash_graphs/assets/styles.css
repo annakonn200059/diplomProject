@@ -1,18 +1,29 @@
 @import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
 
 .container {
+    display: flex;
+    flex-direction: column;
     padding: 25px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
     height: 100%;
     width: 100%;
     max-width: 100%;
+}
+
+.select_content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    max-width: 100%;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    margin: 25px 0 0 0;
 }
 
 .control_container {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    padding-top: 5px;
 }
 
 .matrix_input_container {
@@ -38,7 +49,7 @@
 
 .graph_container {
     border-left: 2px solid black;
-    padding: 0 25px;
+    padding: 5px 25px 0 25px;
 }
 
 .inline_p {

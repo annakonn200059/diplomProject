@@ -26,68 +26,91 @@ default_stylesheet = [
     },
 ]
 
+
+one_lattice_selected_content = [
+    html.Div([
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Label("Введите количество вершин:"),
+                    html.Div([
+                        dcc.Input(id='n-source', type='text', placeholder='n', className='input')
+                    ]),
+                    html.Div([], id='n_input_error', className='error-text'),
+                ], className='matrix_input_container'),
+                html.Div([
+                    html.Label("Введите турнир в верхней матричной форме:"),
+                    html.Div([
+                        dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
+                    ]),
+                    html.Div([], id='matrix_input_error', className='error-text')
+                ], className='matrix_input_container'),
+                html.Div([
+                    html.Button('Построить', id='construct-button')
+                ])
+            ], className='control_container'),
+
+            html.Div([], id="characteristics", className='characteristics_container')
+        ], className='control_container', style={'justify-content': 'space-between'}),
+        html.Div([
+            html.Div([
+                html.Label("Турнир:"),
+                html.Button('import as jpg', id='import-tournament-button', disabled=True),
+            ], className='title_container'),
+            cyto.Cytoscape(
+                id='tournament',
+                elements=[],
+                layout={'name': 'circle'},
+                stylesheet=default_stylesheet,
+                # style={'width': '100%'}
+            )
+        ], className='graph_container'),
+        html.Div([
+            html.Div([
+                html.Label("Решетка:"),
+                html.Button('import as jpg', id='import-lattice-button', disabled=True),
+            ], className='title_container'),
+            cyto.Cytoscape(
+                id='lattice',
+                elements=[],
+                layout={'name': 'circle'},
+                # style={'width': '100%'}
+            )
+        ], className='graph_container')
+    ], className='select_content')
+]
+
+
 dash_app.layout = html.Div([
     html.Div([
-        html.Div([
-            html.Div([
-                html.Label("Вариант построения:"),
-                dcc.Dropdown(
-                    id='dropdown-mode',
-                    value='одна решетка',
-                    clearable=False,
-                    options=[
-                        {'label': name.capitalize(), 'value': name}
-                        for name in ['одна решетка', 'несколько решеток']
-                    ]
-                )
-            ], className='dropdown'),
-            html.Div([
-                html.Label("Введите количество вершин:"),
-                html.Div([
-                    dcc.Input(id='n-source', type='text', placeholder='n', className='input')
-                ]),
-                html.Div([], id='n_input_error', className='error-text'),
-            ], className='matrix_input_container'),
-            html.Div([
-                html.Label("Введите турнир в верхней матричной форме:"),
-                html.Div([
-                    dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
-                ]),
-                html.Div([], id='matrix_input_error', className='error-text')
-            ], className='matrix_input_container'),
-            html.Div([
-                html.Button('Построить', id='construct-button')
-            ])
-        ], className='control_container'),
-
-        html.Div([], id="characteristics", className='characteristics_container')
-    ], className='control_container', style={'justify-content': 'space-between'}),
-    html.Div([
-        html.Div([
-            html.Label("Турнир:"),
-            html.Button('import as jpg', id='import-tournament-button', disabled=True),
-        ], className='title_container'),
-        cyto.Cytoscape(
-            id='tournament',
-            elements=[],
-            layout={'name': 'circle'},
-            stylesheet=default_stylesheet,
-            # style={'width': '100%'}
+        html.Label("Вариант построения:"),
+        dcc.Dropdown(
+            id='dropdown-mode',
+            value='одна решетка',
+            clearable=False,
+            options=[
+                {'label': name.capitalize(), 'value': name}
+                for name in ['одна решетка', 'несколько решеток']
+            ]
         )
-    ], className='graph_container'),
-    html.Div([
-        html.Div([
-            html.Label("Решетка:"),
-            html.Button('import as jpg', id='import-lattice-button', disabled=True),
-        ], className='title_container'),
-        cyto.Cytoscape(
-            id='lattice',
-            elements=[],
-            layout={'name': 'circle'},
-            # style={'width': '100%'}
-        )
-    ], className='graph_container')
+    ], className='dropdown'),
+    html.Div(children=one_lattice_selected_content, id='main_content')
 ], className='container')
+
+
+@dash_app.callback([
+    Output('main_content', 'children'),
+    ],
+    [
+        Input('dropdown-mode', 'value')
+    ]
+)
+def update_graph(dropdown_value):
+    if dropdown_value == 'несколько решеток':
+        return [html.Div()]
+
+    else:
+        return [html.Div(one_lattice_selected_content)]
 
 
 @dash_app.callback(
@@ -146,7 +169,6 @@ def update_n_errors(n_clicks, n_value):
     [
     Input('n_input_error', 'children'),
     Input('construct-button', 'n_clicks'),
-    Input('dropdown-mode', 'value')
     ],
     [
     State('matrix-source', 'value'),
@@ -157,18 +179,8 @@ def update_n_errors(n_clicks, n_value):
     State('characteristics', 'children'),
     ]
 )
-def update_graph(n_error, n_clicks, dropdown_value, matrix_value, n_value, tournament_elements,
+def update_graph(n_error, n_clicks, matrix_value, n_value, tournament_elements,
                  lattice_elements, characteristics_style, characteristics_children):
-    ctx = dash.callback_context
-
-    if not ctx.triggered:
-        raise dash.exceptions.PreventUpdate
-    else:
-        trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    if trigger_id == 'dropdown-mode' and dropdown_value == 'несколько решеток':
-        return [], [], characteristics_style, characteristics_children
-
     if n_error:
         return tournament_elements, lattice_elements, characteristics_style, characteristics_children
 
