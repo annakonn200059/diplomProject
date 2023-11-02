@@ -37,7 +37,7 @@ def get_all_lattices_from_file(fileWithTournaments):
         upper_matrix_form = line.strip()
         tournament_edges_list, adjacency_list, vertexes = FormatInput(upper_matrix_form,
                                                                       n).upperTriangleToEdgeList()
-        tournament_list, factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix_form).main_fun(i)
+        factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix_form).main_fun(i)
         lattice_edges, lattice_width, lattice_height = Lattice(factor_arr).main_fun()
         # folder_name_for_lattice = upper_matrix_form
         # draw.drawTournaments(tournament_list, folder_name_for_lattice)
@@ -48,9 +48,10 @@ def get_all_lattices_from_file(fileWithTournaments):
         fill_dict(height_dict, lattice_height, upper_matrix_form)
         fill_dict(width_dict, lattice_width, upper_matrix_form)
         folder_name_for_lattice = upper_matrix_form
-        draw.drawTournaments(tournament_list, folder_name_for_lattice)
+        #draw.drawTournaments(tournament_list, folder_name_for_lattice)
         draw.drawLattice(lattice_edges, folder_name_for_lattice)
     #print('order_dict', order_dict)
     #print('height_dict', height_dict)
     #print('width_dict', width_dict)
     draw.saveCharachteristicsToOneFile(order_dict, height_dict, width_dict, n)
+

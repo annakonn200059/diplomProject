@@ -19,28 +19,28 @@ class DrawGraphs:
             print("Порядок решётки: " + str(elements_amount), "Ширина: " + str(graph_width),
                   "Высота: " + str(graph_height), file=fileCharacteristics, sep="\n")
 
-    def drawTournaments(self, tournament_list, folder_name):
-        for i in range(len(tournament_list)):
-            if len(tournament_list[i]) == 0:
-                G = nx.Graph([[0, 0]])
-                pos = nx.spring_layout(G)
-                nx.draw_networkx_nodes(G, pos, node_size=500)
-                nx.draw_networkx_labels(G, pos)
-            else:
-                G = nx.DiGraph(tournament_list[i])
-                pos = nx.spring_layout(G)
-                nx.draw_networkx_nodes(G, pos, node_size=500)
-                nx.draw_networkx_labels(G, pos)
-                nx.draw_networkx_edges(G, pos, nodelist=tournament_list[i])
-            file_name = str(i + 1) + '.png'
-            if not os.path.isdir(self.target):
-                os.makedirs(self.target)
-            destination = os.path.join(self.target, folder_name)
-            if not os.path.isdir(destination):
-                os.makedirs(destination)
-            destination = os.path.join(self.target, folder_name, file_name)
-            plt.savefig(destination)
-            plt.close()
+    # def drawTournaments(self, tournament_list, folder_name):
+    #     for i in range(len(tournament_list)):
+    #         if len(tournament_list[i]) == 0:
+    #             G = nx.Graph([[0, 0]])
+    #             pos = nx.spring_layout(G)
+    #             nx.draw_networkx_nodes(G, pos, node_size=500)
+    #             nx.draw_networkx_labels(G, pos)
+    #         else:
+    #             G = nx.DiGraph(tournament_list[i])
+    #             pos = nx.spring_layout(G)
+    #             nx.draw_networkx_nodes(G, pos, node_size=500)
+    #             nx.draw_networkx_labels(G, pos)
+    #             nx.draw_networkx_edges(G, pos, nodelist=tournament_list[i])
+    #         file_name = str(i + 1) + '.png'
+    #         if not os.path.isdir(self.target):
+    #             os.makedirs(self.target)
+    #         destination = os.path.join(self.target, folder_name)
+    #         if not os.path.isdir(destination):
+    #             os.makedirs(destination)
+    #         destination = os.path.join(self.target, folder_name, file_name)
+    #         plt.savefig(destination)
+    #         plt.close()
 
     def drawLattice(self, lattice_edges, folder_name):
         G = nx.Graph(lattice_edges)
@@ -51,6 +51,9 @@ class DrawGraphs:
         file_name = folder_name
         if not os.path.isdir(self.target):
             os.makedirs(self.target)
+        destination = os.path.join(self.target, folder_name)
+        if not os.path.isdir(destination):
+            os.makedirs(destination)
         destination = os.path.join(self.target, folder_name, file_name)
         plt.savefig(destination)
         plt.close()

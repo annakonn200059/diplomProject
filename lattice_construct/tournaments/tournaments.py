@@ -43,10 +43,10 @@ class Tournaments:
                     if len(factor_graph) > 0:
                         if tournament.is_tournament(factor_graph):
                             self.ans_factor_arr.append([self.factor_arr[i][0][0], factor_vertexes])
-                            self.tournament_list.append(probable_tournament)
+                            #self.tournament_list.append(probable_tournament)
                     if len(factor_graph) == 0:
                         self.ans_factor_arr.append([self.factor_arr[i][0][0], factor_vertexes])
-                        self.tournament_list.append(probable_tournament)
+                        #self.tournament_list.append(probable_tournament)
             #self.format_output_tournaments()
-        return self.tournament_list, self.ans_factor_arr
+        return self.ans_factor_arr
 
