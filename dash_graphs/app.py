@@ -6,9 +6,13 @@ from dash.dependencies import Input, Output, State
 import dash_cytoscape as cyto
 import base64
 import io
+import matplotlib
 
 from dash_graphs.utils import get_image
 from lattice_construct.app import get_lattice_from_upper_matrix, get_all_lattices_from_file
+
+
+matplotlib.use('Agg')
 
 dash_app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
@@ -124,11 +128,12 @@ dash_app.layout = html.Div([
     html.Div(children=one_lattice_selected_content, id='main_content')
 ], className='container')
 
-
 '''
 отрисовываем контент в зависимости от выбранного режима:
 для одного турнира либо список турниров из файла
 '''
+
+
 @dash_app.callback([
     Output('main_content', 'children'),
 ],
@@ -161,8 +166,6 @@ def update_file_content(contents, filename):
 
         file_like_object = io.StringIO(decoded_string)
 
-        get_all_lattices_from_file(file_like_object)
-
         children = [
             html.Div([
                 html.Hr(),
@@ -172,6 +175,9 @@ def update_file_content(contents, filename):
                 html.Pre(decoded_string, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})
             ])
         ]
+
+        get_all_lattices_from_file(file_like_object)
+
         return children
     return None
 
