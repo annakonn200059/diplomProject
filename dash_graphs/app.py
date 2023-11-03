@@ -108,7 +108,15 @@ several_lattices_selected_content = [
             # Not allow multiple files to be uploaded
             multiple=False
         ),
-        html.Div(id='output-txt-content')
+        dcc.Loading(
+            id="loading-1",
+            children=[
+                html.Div(id='output-txt-content')
+            ],
+            type="dot", # Можете выбрать "circle", "dot", или другой
+            fullscreen=False,
+            className="loader"
+        ),
     ])
 ]
 
@@ -149,37 +157,32 @@ def update_graph(dropdown_value):
         return [one_lattice_selected_content]
 
 
+# Колбэк для обработки файла с турнирами и отображения лоадера во время этого
 @dash_app.callback(
     Output('output-txt-content', 'children'),
-    [
-        Input('upload-txt-file', 'contents')
-    ],
-    [
-        State('upload-txt-file', 'filename')
-    ]
+    [Input('upload-txt-file', 'contents')],
+    [State('upload-txt-file', 'filename')]
 )
 def update_file_content(contents, filename):
-    if contents is not None:
-        # Decode the uploaded file content
-        content_string = contents.split(',')[1]
-        decoded_string = base64.b64decode(content_string).decode('utf-8')
+    if contents is None:
+        raise dash.exceptions.PreventUpdate
 
-        file_like_object = io.StringIO(decoded_string)
+    # Декодирование и отображение содержимого файла
+    content_string = contents.split(',')[1]
+    decoded_string = base64.b64decode(content_string).decode('utf-8')
+    file_like_object = io.StringIO(decoded_string)
+    file_content = html.Div([
+        html.Hr(),
+        f'File Name: {filename}',
+        html.Br(),
+        'Content:',
+        html.Pre(decoded_string, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})
+    ])
 
-        children = [
-            html.Div([
-                html.Hr(),
-                f'File Name: {filename}',
-                html.Br(),
-                'Content:',
-                html.Pre(decoded_string, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})
-            ])
-        ]
+    get_all_lattices_from_file(file_like_object)
 
-        get_all_lattices_from_file(file_like_object)
-
-        return children
-    return None
+    # Как только функция завершится, лоадер исчезнет, поскольку мы обновляем 'output-txt-content'
+    return file_content
 
 
 @dash_app.callback(
