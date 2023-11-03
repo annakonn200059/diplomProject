@@ -1,6 +1,7 @@
 from networkx.algorithms import tournament
 import networkx as nx
 
+from dash_graphs.utils import add_progress_message
 from lattice_construct.tournaments.congruences import find_all_congruences
 from lattice_construct.tournaments.findTournaments import make_factor_graph_from_factor_arr
 
@@ -26,6 +27,7 @@ class Tournaments:
 
     def main_fun(self, i):
         #print("Дан орграф: ", "\n", self.edges_list)
+        add_progress_message(f"Турнир {i}")
         print(str(i), " верхняя треугольная форма: ", self.upper_matrix_form)
         g = nx.DiGraph(self.edges_list)
         if not tournament.is_tournament(g):

@@ -1,3 +1,14 @@
+progress_info = {
+    'messages': [],
+    'complete': False
+}
+
+
+def reset_info_object():
+    progress_info['messages'] = []
+    progress_info['complete'] = False
+
+
 def get_image(get_jpg_clicks, elements):
     if elements and len(elements):
         # File type to output of 'svg, 'png', 'jpg', or 'jpg'
@@ -17,3 +28,11 @@ def get_image(get_jpg_clicks, elements):
                }, False
 
     return {}, True
+
+
+def add_progress_message(message, is_last_message=False):
+    global progress_info
+    progress_info['messages'].append(message)
+
+    if is_last_message:
+        progress_info['complete'] = True  # if it's the last message

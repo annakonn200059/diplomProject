@@ -8,13 +8,14 @@ import base64
 import io
 import matplotlib
 
-from dash_graphs.utils import get_image
+from dash_graphs.utils import get_image, progress_info, reset_info_object
 from lattice_construct.app import get_lattice_from_upper_matrix, get_all_lattices_from_file
 
 
 matplotlib.use('Agg')
 
 dash_app = dash.Dash(__name__, suppress_callback_exceptions=True)
+
 
 default_stylesheet = [
     {
@@ -37,21 +38,21 @@ one_lattice_selected_content = [
         html.Div([
             html.Div([
                 html.Div([
-                    html.Label("Введите количество вершин:"),
+                    html.Label("Введите количество вершин:", className="h6"),
                     html.Div([
                         dcc.Input(id='n-source', type='text', placeholder='n', className='input')
                     ]),
                     html.Div([], id='n_input_error', className='error-text'),
                 ], className='matrix_input_container'),
                 html.Div([
-                    html.Label("Введите турнир в верхней матричной форме:"),
+                    html.Label("Введите турнир в верхней матричной форме:", className="h6"),
                     html.Div([
                         dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
                     ]),
                     html.Div([], id='matrix_input_error', className='error-text')
                 ], className='matrix_input_container'),
                 html.Div([
-                    html.Button('Построить', id='construct-button')
+                    html.Button('Построить', id='construct-button', className="btn btn-primary")
                 ])
             ], className='control_container'),
 
@@ -60,7 +61,7 @@ one_lattice_selected_content = [
         html.Div([
             html.Div([
                 html.Label("Турнир:"),
-                html.Button('import as jpg', id='import-tournament-button', disabled=True),
+                html.Button('import as jpg', id='import-tournament-button', disabled=True, className="btn btn-outline-secondary"),
             ], className='title_container'),
             cyto.Cytoscape(
                 id='tournament',
@@ -73,7 +74,7 @@ one_lattice_selected_content = [
         html.Div([
             html.Div([
                 html.Label("Решетка:"),
-                html.Button('import as jpg', id='import-lattice-button', disabled=True),
+                html.Button('import as jpg', id='import-lattice-button', disabled=True, className="btn btn-outline-secondary"),
             ], className='title_container'),
             cyto.Cytoscape(
                 id='lattice',
@@ -108,21 +109,28 @@ several_lattices_selected_content = [
             # Not allow multiple files to be uploaded
             multiple=False
         ),
-        dcc.Loading(
-            id="loading-1",
-            children=[
-                html.Div(id='output-txt-content')
-            ],
-            type="dot", # Можете выбрать "circle", "dot", или другой
-            fullscreen=False,
-            className="loader"
-        ),
+        html.Div([
+            html.Div(id='messages-div', className="messages-container"),
+            dcc.Loading(
+                id="loading-1",
+                children=[
+                    html.Div(id='output-txt-content')
+                ],
+                type="dot", # Можете выбрать "circle", "dot", или другой
+                fullscreen=False,
+            ),
+        ], className="loading_status_container"),
+        dcc.Interval(
+            id='interval-component',
+            interval=1*1000,  # in milliseconds
+            n_intervals=0
+        )
     ])
 ]
 
 dash_app.layout = html.Div([
     html.Div([
-        html.Label("Вариант построения:"),
+        html.Label("Вариант построения:", className="h6"),
         dcc.Dropdown(
             id='dropdown-mode',
             value='одна решетка',
@@ -150,6 +158,7 @@ dash_app.layout = html.Div([
     ]
 )
 def update_graph(dropdown_value):
+    reset_info_object()
     if dropdown_value == 'несколько решеток':
         return [several_lattices_selected_content]
 
@@ -157,13 +166,18 @@ def update_graph(dropdown_value):
         return [one_lattice_selected_content]
 
 
-# Колбэк для обработки файла с турнирами и отображения лоадера во время этого
+''' 
+Колбэк для обработки файла с турнирами и отображения лоадера во время этого
+'''
+
 @dash_app.callback(
     Output('output-txt-content', 'children'),
     [Input('upload-txt-file', 'contents')],
     [State('upload-txt-file', 'filename')]
 )
 def update_file_content(contents, filename):
+    reset_info_object()
+
     if contents is None:
         raise dash.exceptions.PreventUpdate
 
@@ -171,18 +185,33 @@ def update_file_content(contents, filename):
     content_string = contents.split(',')[1]
     decoded_string = base64.b64decode(content_string).decode('utf-8')
     file_like_object = io.StringIO(decoded_string)
-    file_content = html.Div([
-        html.Hr(),
-        f'File Name: {filename}',
-        html.Br(),
-        'Content:',
-        html.Pre(decoded_string, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})
-    ])
+    # file_content = html.Div([
+    #     html.Hr(),
+    #     f'File Name: {filename}',
+    #     html.Br(),
+    #     'Content:',
+    #     html.Pre(decoded_string, style={'whiteSpace': 'pre-wrap', 'wordBreak': 'break-all'})
+    # ])
 
     get_all_lattices_from_file(file_like_object)
 
     # Как только функция завершится, лоадер исчезнет, поскольку мы обновляем 'output-txt-content'
-    return file_content
+    return [html.Div(html.P(f'File Name: {filename}', className="h4"))]
+
+
+@dash_app.callback(
+    Output('messages-div', 'children'),
+    Input('interval-component', 'n_intervals')
+)
+def update_progress(n):
+    # messages = [html.Div(
+    #     [html.P(message) for message in progress_info['messages']]
+    # )]
+    last_message = [html.Div(progress_info['messages'][-1], className="h3") if progress_info['messages'] else None]
+
+    if progress_info['complete']:
+        return [html.Div("Обработка завершена", className="display-6")]
+    return last_message
 
 
 @dash_app.callback(

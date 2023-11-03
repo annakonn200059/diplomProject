@@ -1,5 +1,6 @@
 import networkx as nx
 
+from dash_graphs.utils import add_progress_message
 from lattice_construct.files.draw_module import DrawGraphs
 from lattice_construct.lattices.lattice import Lattice
 from lattice_construct.tournaments.tournaments import Tournaments
@@ -10,7 +11,7 @@ from lattice_construct.utils import fill_dict, edges_to_cytoscape_format
 def get_lattice_from_upper_matrix(upper_matrix, n):
     n = int(n)
     tournament_edges_list, adjacency_list, vertexes = FormatInput(upper_matrix, n).upperTriangleToEdgeList()
-    _, factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix).main_fun(0)
+    factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix).main_fun(0)
     lattice_edges, lattice_width, lattice_height = Lattice(factor_arr).main_fun()
     G = nx.Graph(lattice_edges)
     elements_amount = G.order()
@@ -19,6 +20,7 @@ def get_lattice_from_upper_matrix(upper_matrix, n):
 
 
 def get_all_lattices_from_file(fileWithTournaments):
+    add_progress_message("Прогресс: начало обработки")
     n = int("".join(fileWithTournaments.readline()))
     # app_root = os.path.dirname(os.path.abspath(__file__))
     # target = os.path.join(app_root, 'tests', 'charachteristics')
@@ -54,4 +56,5 @@ def get_all_lattices_from_file(fileWithTournaments):
     #print('height_dict', height_dict)
     #print('width_dict', width_dict)
     draw.saveCharachteristicsToOneFile(order_dict, height_dict, width_dict, n)
+    add_progress_message("", True)
 
