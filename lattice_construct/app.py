@@ -12,11 +12,12 @@ def get_lattice_from_upper_matrix(upper_matrix, n):
     n = int(n)
     tournament_edges_list, adjacency_list, vertexes = FormatInput(upper_matrix, n).upperTriangleToEdgeList()
     factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix).main_fun(0)
-    lattice_edges, lattice_width, lattice_height = Lattice(factor_arr).main_fun()
+    lattice = Lattice(factor_arr)
+    lattice_edges, lattice_width, lattice_height = lattice.main_fun()
     G = nx.Graph(lattice_edges)
     elements_amount = G.order()
 
-    return edges_to_cytoscape_format(tournament_edges_list), edges_to_cytoscape_format(lattice_edges), lattice_width, lattice_height, elements_amount
+    return edges_to_cytoscape_format(tournament_edges_list), edges_to_cytoscape_format(lattice_edges), lattice_width, lattice_height, elements_amount, lattice.flatten_arr
 
 
 def get_all_lattices_from_file(fileWithTournaments):

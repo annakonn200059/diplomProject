@@ -45,7 +45,8 @@ one_lattice_selected_content = [
                 layout={'name': 'circle'},
                 stylesheet=default_stylesheet,
                 # style={'width': '100%'}
-            )
+            ),
+            html.Div(className="graph_bottom_container"),
         ], className='graph_container'),
         html.Div([
             html.Div([
@@ -58,8 +59,10 @@ one_lattice_selected_content = [
                 elements=[],
                 layout={'name': 'circle'},
                 # style={'width': '100%'}
-            )
-        ], className='graph_container')
+            ),
+            html.Div(id='lattice-mouseoverNodeData', className="graph_bottom_container"),
+        ], className='graph_container'),
+        dcc.Store(id='store', storage_type='memory')
     ], className='select_content')
 ]
 
@@ -114,6 +117,7 @@ def register_one_lattice_callbacks(dash_app):
         Output('lattice', 'elements'),
         Output('characteristics', 'style'),
         Output('characteristics', 'children'),
+        Output('store', 'data')
     ],
         [
             Input('n_input_error', 'children'),
@@ -131,10 +135,10 @@ def register_one_lattice_callbacks(dash_app):
     def update_graph(n_error, n_clicks, matrix_value, n_value, tournament_elements,
                      lattice_elements, characteristics_style, characteristics_children):
         if n_error:
-            return tournament_elements, lattice_elements, characteristics_style, characteristics_children
+            return tournament_elements, lattice_elements, characteristics_style, characteristics_children, None
 
         if n_clicks and int(n_clicks) > 0:
-            tournament_elements, lattice_elements, lattice_width, lattice_height, lattice_order = \
+            tournament_elements, lattice_elements, lattice_width, lattice_height, lattice_order, congruences_list = \
                 get_lattice_from_upper_matrix(matrix_value, n_value)
             return tournament_elements, lattice_elements, {'display': 'block'}, \
                    [
@@ -142,6 +146,26 @@ def register_one_lattice_callbacks(dash_app):
                        html.P([f'Порядок: ', html.P(lattice_order, className="h6")], className="inline_p"),
                        html.P([f'Ширина: ', html.P(lattice_width, className="h6")], className="inline_p"),
                        html.P([f'Высота: ', html.P(lattice_height, className="h6")], className="inline_p")
-                   ]
+                   ], \
+                   congruences_list
 
-        return tournament_elements, lattice_elements, {'display': 'none'}, None
+        return tournament_elements, lattice_elements, {'display': 'none'}, None, None
+
+    @dash_app.callback(
+        Output('lattice-mouseoverNodeData', 'children'),
+        [
+            Input('lattice', 'selectedNodeData'),
+            Input('store', 'data')
+        ]
+    )
+    def displayTapNodeData(data, congruences_list):
+        if data:
+            # data - список словарей для каждой выбранной вершины
+            selected_data = data[0]  # реагировать только на первую выбранную вершину
+            congruence = congruences_list[int(selected_data['id'])]
+            return html.P(
+                [html.P(f'Конгруэнция для вершины {selected_data["label"]}: ', className="h6"), f'{congruence}'],
+                className="inline_p"
+            )
+
+    return ""

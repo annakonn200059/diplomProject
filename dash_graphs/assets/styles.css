@@ -81,3 +81,7 @@
     gap: 30px;
     flex-direction: column;
 }
+
+.graph_bottom_container {
+    min-height: 40px;
+}

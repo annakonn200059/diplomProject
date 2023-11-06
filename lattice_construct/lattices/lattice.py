@@ -13,10 +13,14 @@ class Lattice:
         self.factor_arr = factor_arr
         self.flatten_arr = factor_arr
 
-    def compare_arr(self, arr1, arr2):
+    '''
+    arr1-элемент предыдущего уровня
+    arr2-элемент текущего уровня
+    '''
+    def compare_arr(self, dict1, dict2):
         res = False
-        values_arr1 = list(arr1.values())
-        values_arr2 = list(arr2.values())
+        values_arr1 = list(dict1.values())
+        #values_arr2 = list(dict2.values())
         current_arr1 = []
         for k in range(0, len(values_arr1) - 1):
             for s in range(k + 1, len(values_arr1)):
