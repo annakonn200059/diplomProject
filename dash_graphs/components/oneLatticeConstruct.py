@@ -164,7 +164,7 @@ def register_one_lattice_callbacks(dash_app):
             selected_data = data[0]  # реагировать только на первую выбранную вершину
             congruence = congruences_list[int(selected_data['id'])]
             return html.P(
-                [html.P(f'Конгруэнция для вершины {selected_data["label"]}: ', className="h6"), f'{congruence}'],
+                [html.P(f'Конгруэнция для вершины {selected_data["label"]}: ', className="h6"), f'{list(congruence[1].values())}'],
                 className="inline_p"
             )
 
