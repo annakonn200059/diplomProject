@@ -1,4 +1,5 @@
 progress_info = {
+    'errors': [],
     'messages': [],
     'complete': False
 }
@@ -6,6 +7,7 @@ progress_info = {
 
 def reset_info_object():
     progress_info['messages'] = []
+    progress_info['errors'] = []
     progress_info['complete'] = False
 
 
@@ -36,3 +38,8 @@ def add_progress_message(message, is_last_message=False):
 
     if is_last_message:
         progress_info['complete'] = True  # if it's the last message
+
+
+def add_error_message(message):
+    global progress_info
+    progress_info['errors'].append(message)

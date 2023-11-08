@@ -1,3 +1,6 @@
+from dash_graphs.utils import add_error_message
+
+
 class FormatInput:
     def __init__(self, upper_matrix_form, n):
         self.n = n
@@ -23,6 +26,8 @@ class FormatInput:
         for i in range(0, self.n - 1):
             column = i + 1
             for j in range(cur, stop):
+                if j >= len(self.upper_matrix_form):
+                    add_error_message("Количество вершин не соответствует введенному турниру")
                 if self.upper_matrix_form[j] == '1':
                     self.edges_list.append([i, column])
                     self.add_to_adj_list(i, column)

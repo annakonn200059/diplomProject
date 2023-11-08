@@ -89,9 +89,6 @@ def register_file_callbacks(dash_app):
         Input('interval-component', 'n_intervals')
     )
     def update_progress(n):
-        # messages = [html.Div(
-        #     [html.P(message) for message in progress_info['messages']]
-        # )]
         last_message = [html.Div(progress_info['messages'][-1], className="h3") if progress_info['messages'] else None]
 
         if progress_info['complete']:

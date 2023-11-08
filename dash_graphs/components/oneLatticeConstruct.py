@@ -3,9 +3,10 @@ import re
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import dash_cytoscape as cyto
+from dash.exceptions import PreventUpdate
 
 from dash_graphs.components.utils import default_stylesheet
-from dash_graphs.utils import get_image
+from dash_graphs.utils import get_image, progress_info, reset_info_object
 from lattice_construct.app import get_lattice_from_upper_matrix
 
 one_lattice_selected_content = [
@@ -28,7 +29,8 @@ one_lattice_selected_content = [
                 ], className='matrix_input_container'),
                 html.Div([
                     html.Button('Построить', id='construct-button', className="btn btn-primary")
-                ])
+                ]),
+                html.Div([], id="errors")
             ], className='control_container'),
 
             html.Div([], id="characteristics", className='characteristics_container')
@@ -62,7 +64,12 @@ one_lattice_selected_content = [
             ),
             html.Div(id='lattice-mouseoverNodeData', className="graph_bottom_container"),
         ], className='graph_container'),
-        dcc.Store(id='store', storage_type='memory')
+        dcc.Store(id='store', storage_type='memory'),
+        dcc.Interval(
+            id='interval-component',
+            interval=1 * 1000,  # in milliseconds
+            n_intervals=0
+        )
     ], className='select_content')
 ]
 
@@ -117,7 +124,7 @@ def register_one_lattice_callbacks(dash_app):
         Output('lattice', 'elements'),
         Output('characteristics', 'style'),
         Output('characteristics', 'children'),
-        Output('store', 'data')
+        Output('store', 'data'),
     ],
         [
             Input('n_input_error', 'children'),
@@ -125,22 +132,19 @@ def register_one_lattice_callbacks(dash_app):
         ],
         [
             State('matrix-source', 'value'),
-            State('n-source', 'value'),
-            State('tournament', 'elements'),
-            State('lattice', 'elements'),
-            State('characteristics', 'style'),
-            State('characteristics', 'children'),
+            State('n-source', 'value')
         ]
     )
-    def update_graph(n_error, n_clicks, matrix_value, n_value, tournament_elements,
-                     lattice_elements, characteristics_style, characteristics_children):
+    def update_graph(n_error, n_clicks, matrix_value, n_value):
+        reset_info_object()
         if n_error:
-            return tournament_elements, lattice_elements, characteristics_style, characteristics_children, None
+            raise PreventUpdate
 
         if n_clicks and int(n_clicks) > 0:
-            tournament_elements, lattice_elements, lattice_width, lattice_height, lattice_order, congruences_list = \
+            new_tournament_elements, new_lattice_elements, lattice_width, lattice_height, lattice_order, congruences_list = \
                 get_lattice_from_upper_matrix(matrix_value, n_value)
-            return tournament_elements, lattice_elements, {'display': 'block'}, \
+
+            return new_tournament_elements, new_lattice_elements, {'display': 'block'}, \
                    [
                        html.Label("Характеристики решетки:", className="h5", style={"margin-bottom": "15px"}),
                        html.P([f'Порядок: ', html.P(lattice_order, className="h6")], className="inline_p"),
@@ -149,7 +153,24 @@ def register_one_lattice_callbacks(dash_app):
                    ], \
                    congruences_list
 
-        return tournament_elements, lattice_elements, {'display': 'none'}, None, None
+        raise PreventUpdate
+
+    @dash_app.callback(
+        [
+            Output('errors', 'children'),  # для отображения ошибок
+            Output('errors', 'style')
+        ],
+        Input('interval-component', 'n_intervals')
+    )
+    def update_progress(n):
+        if len(progress_info['errors']):
+            error_message = html.Div(
+                [html.P(e) for e in progress_info['errors']],
+                className='error-text'
+            )
+            return error_message, {'display': 'block'}
+
+        return [], None
 
     @dash_app.callback(
         Output('lattice-mouseoverNodeData', 'children'),
@@ -164,7 +185,8 @@ def register_one_lattice_callbacks(dash_app):
             selected_data = data[0]  # реагировать только на первую выбранную вершину
             congruence = congruences_list[int(selected_data['id'])]
             return html.P(
-                [html.P(f'Конгруэнция для вершины {selected_data["label"]}: ', className="h6"), f'{list(congruence[1].values())}'],
+                [html.P(f'Конгруэнция для вершины {selected_data["label"]}: ', className="h6"),
+                 f'{list(congruence[1].values())}'],
                 className="inline_p"
             )
 

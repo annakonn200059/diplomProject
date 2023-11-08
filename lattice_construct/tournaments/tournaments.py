@@ -1,7 +1,7 @@
 from networkx.algorithms import tournament
 import networkx as nx
 
-from dash_graphs.utils import add_progress_message
+from dash_graphs.utils import add_progress_message, add_error_message
 from lattice_construct.tournaments.congruences import find_all_congruences
 from lattice_construct.tournaments.findTournaments import make_factor_graph_from_factor_arr
 
@@ -32,6 +32,7 @@ class Tournaments:
         g = nx.DiGraph(self.edges_list)
         if not tournament.is_tournament(g):
             print("Данный орграф не является турниром")
+            add_error_message("Данный орграф не является турниром")
             return
         else:
             #print("Является турниром")
