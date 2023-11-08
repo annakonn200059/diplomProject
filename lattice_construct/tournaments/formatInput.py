@@ -21,6 +21,12 @@ class FormatInput:
             self.adjacency_list[node1] = temp
 
     def upperTriangleToEdgeList(self):
+        # количество элементов над главной диагональю матрицы смежности
+        upper_form_len = (self.n * (self.n - 1)) // 2
+        if not upper_form_len == len(self.upper_matrix_form):
+            add_error_message("Матричная форма не соответствует количеству вершин")
+            return
+
         cur = 0
         stop = self.n - 1
         for i in range(0, self.n - 1):
