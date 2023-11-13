@@ -17,7 +17,7 @@ def get_lattice_from_upper_matrix(upper_matrix, n):
     G = nx.Graph(lattice_edges)
     elements_amount = G.order()
 
-    return edges_to_cytoscape_format(tournament_edges_list), edges_to_cytoscape_format(lattice_edges), lattice_width, lattice_height, elements_amount, lattice.flatten_arr
+    return edges_to_cytoscape_format(tournament_edges_list), edges_to_cytoscape_format(lattice_edges, lattice.flatten_arr), lattice_width, lattice_height, elements_amount, lattice.flatten_arr
 
 
 def get_all_lattices_from_file(fileWithTournaments):

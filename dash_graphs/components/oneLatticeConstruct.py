@@ -59,7 +59,7 @@ one_lattice_selected_content = [
             cyto.Cytoscape(
                 id='lattice',
                 elements=[],
-                layout={'name': 'circle'},
+                layout={'name': 'preset'}
                 # style={'width': '100%'}
             ),
             html.Div(id='lattice-mouseoverNodeData', className="graph_bottom_container"),
