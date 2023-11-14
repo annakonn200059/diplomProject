@@ -9,6 +9,27 @@ from dash_graphs.components.utils import default_stylesheet
 from dash_graphs.utils import get_image, progress_info, reset_info_object
 from lattice_construct.app import get_lattice_from_upper_matrix
 
+# Контейнер для ввода верхней матричной формы
+input_container = html.Div([
+    html.Div([
+        dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
+    ]),
+    html.Div([], id='matrix_input_error', className='error-text')
+], className='input_container', id='input_container')
+
+input_selection = html.Div([
+    html.Label("Выберите способ ввода графа:", className="h6"),
+    dcc.RadioItems(
+        id='input-method',
+        options=[
+            {'label': ' Верхняя матричная форма', 'value': 'matrix'},
+            {'label': ' Формат digraph6', 'value': 'digraph6'}
+        ],
+        value='matrix',  # Значение по умолчанию
+        labelStyle={'display': 'block'}
+    )
+], className='input_method_container')
+
 one_lattice_selected_content = [
     html.Div([
         html.Div([
@@ -19,14 +40,9 @@ one_lattice_selected_content = [
                         dcc.Input(id='n-source', type='text', placeholder='n', className='input')
                     ]),
                     html.Div([], id='n_input_error', className='error-text'),
-                ], className='matrix_input_container'),
-                html.Div([
-                    html.Label("Введите турнир в верхней матричной форме:", className="h6"),
-                    html.Div([
-                        dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
-                    ]),
-                    html.Div([], id='matrix_input_error', className='error-text')
-                ], className='matrix_input_container'),
+                ], className='input_container'),
+                input_selection,
+                input_container,
                 html.Div([
                     html.Button('Построить', id='construct-button', className="btn btn-primary")
                 ]),
@@ -132,17 +148,18 @@ def register_one_lattice_callbacks(dash_app):
         ],
         [
             State('matrix-source', 'value'),
-            State('n-source', 'value')
+            State('n-source', 'value'),
+            State('input-method', 'value'),  # State для метода ввода
         ]
     )
-    def update_graph(n_error, n_clicks, matrix_value, n_value):
+    def update_graph(n_error, n_clicks, matrix_value, n_value, input_method):
         reset_info_object()
         if n_error:
             raise PreventUpdate
 
         if n_clicks and int(n_clicks) > 0:
             new_tournament_elements, new_lattice_elements, lattice_width, lattice_height, lattice_order, congruences_list = \
-                get_lattice_from_upper_matrix(matrix_value, n_value)
+                get_lattice_from_upper_matrix(matrix_value, n_value, input_method)
 
             return new_tournament_elements, new_lattice_elements, {'display': 'block'}, \
                    [
@@ -190,4 +207,6 @@ def register_one_lattice_callbacks(dash_app):
                 className="inline_p"
             )
 
-    return ""
+        return ""
+
+

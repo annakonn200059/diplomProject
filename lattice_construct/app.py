@@ -8,8 +8,9 @@ from lattice_construct.tournaments.formatInput import FormatInput
 from lattice_construct.utils import fill_dict, edges_to_cytoscape_format
 
 
-def get_lattice_from_upper_matrix(upper_matrix, n):
+def get_lattice_from_upper_matrix(upper_matrix, n, input_method):
     n = int(n)
+    #G = nx.from_graph6_bytes(graph_6.rstrip())
     tournament_edges_list, adjacency_list, vertexes = FormatInput(upper_matrix, n).upperTriangleToEdgeList()
     factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix).main_fun(0)
     lattice = Lattice(factor_arr)
