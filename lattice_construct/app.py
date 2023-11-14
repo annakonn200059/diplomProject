@@ -31,7 +31,6 @@ def get_all_lattices_from_file(fileWithTournaments):
     width_dict = {}
     i = 0
     # считываем турниры в формате верхней матричной формы и находим список дуг и список смежности
-    # with open(target + '.txt', encoding='UTF-8', mode='a') as fileCharacteristics:
     while True:
         line = fileWithTournaments.readline()
         i += 1
@@ -41,7 +40,8 @@ def get_all_lattices_from_file(fileWithTournaments):
         tournament_edges_list, adjacency_list, vertexes = FormatInput(upper_matrix_form,
                                                                       n).upperTriangleToEdgeList()
         factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix_form).main_fun(i)
-        lattice_edges, lattice_width, lattice_height = Lattice(factor_arr).main_fun()
+        lattice = Lattice(factor_arr)
+        lattice_edges, lattice_width, lattice_height = lattice.main_fun()
         # folder_name_for_lattice = upper_matrix_form
         # draw.drawTournaments(tournament_list, folder_name_for_lattice)
         # draw.saveCharachteristicsToOneFile(lattice_edges, folder_name_for_lattice, lattice_width, lattice_height)
@@ -51,11 +51,7 @@ def get_all_lattices_from_file(fileWithTournaments):
         fill_dict(height_dict, lattice_height, upper_matrix_form)
         fill_dict(width_dict, lattice_width, upper_matrix_form)
         folder_name_for_lattice = upper_matrix_form
-        #draw.drawTournaments(tournament_list, folder_name_for_lattice)
-        draw.drawLattice(lattice_edges, folder_name_for_lattice)
-    #print('order_dict', order_dict)
-    #print('height_dict', height_dict)
-    #print('width_dict', width_dict)
+        draw.drawLattice(lattice_edges, folder_name_for_lattice, lattice.flatten_arr)
     draw.saveCharachteristicsToOneFile(order_dict, height_dict, width_dict, n)
     add_progress_message("", True)
 
