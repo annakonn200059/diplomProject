@@ -8,17 +8,24 @@ from lattice_construct.tournaments.formatInput import FormatInput
 from lattice_construct.utils import fill_dict, edges_to_cytoscape_format
 
 
-def get_lattice_from_upper_matrix(upper_matrix, n, input_method):
+def get_lattice_from_upper_matrix(graph_value, n, input_method):
     n = int(n)
-    #G = nx.from_graph6_bytes(graph_6.rstrip())
-    tournament_edges_list, adjacency_list, vertexes = FormatInput(upper_matrix, n).upperTriangleToEdgeList()
-    factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix).main_fun(0)
+    format_input = FormatInput(graph_value, n)
+
+    # opposite_form - другая форма графа. Для graph6 это будет верхняя матричная форма и наоборот
+    if input_method == 'matrix':
+        tournament_edges_list, adjacency_list, vertexes, opposite_form = format_input.upperTriangleToEdgeList()
+    else:
+        tournament_edges_list, adjacency_list, vertexes, opposite_form = format_input.graph6_to_directed_edges()
+
+    factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, graph_value).main_fun(0)
     lattice = Lattice(factor_arr)
     lattice_edges, lattice_width, lattice_height = lattice.main_fun()
     G = nx.Graph(lattice_edges)
     elements_amount = G.order()
 
-    return edges_to_cytoscape_format(tournament_edges_list), edges_to_cytoscape_format(lattice_edges, lattice.flatten_arr), lattice_width, lattice_height, elements_amount, lattice.flatten_arr
+    return edges_to_cytoscape_format(tournament_edges_list), edges_to_cytoscape_format(lattice_edges, lattice.flatten_arr),\
+           lattice_width, lattice_height, elements_amount, lattice.flatten_arr, opposite_form
 
 
 def get_all_lattices_from_file(fileWithTournaments):

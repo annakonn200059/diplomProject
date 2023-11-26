@@ -12,13 +12,13 @@ from lattice_construct.app import get_lattice_from_upper_matrix
 # Контейнер для ввода верхней матричной формы
 input_container = html.Div([
     html.Div([
-        dcc.Input(id='matrix-source', type='text', placeholder='Введите...', className='input')
+        dcc.Input(id='graph-source', type='text', placeholder='Введите...', className='input')
     ]),
     html.Div([], id='matrix_input_error', className='error-text')
 ], className='input_container', id='input_container')
 
 input_selection = html.Div([
-    html.Label("Выберите способ ввода графа:", className="h6"),
+    html.Label("Выберите способ ввода турнира:", className="h6"),
     dcc.RadioItems(
         id='input-method',
         options=[
@@ -147,22 +147,25 @@ def register_one_lattice_callbacks(dash_app):
             Input('construct-button', 'n_clicks'),
         ],
         [
-            State('matrix-source', 'value'),
+            State('graph-source', 'value'),
             State('n-source', 'value'),
             State('input-method', 'value'),  # State для метода ввода
         ]
     )
-    def update_graph(n_error, n_clicks, matrix_value, n_value, input_method):
+    def update_graph(n_error, n_clicks, graph_value, n_value, input_method):
         reset_info_object()
         if n_error:
             raise PreventUpdate
 
         if n_clicks and int(n_clicks) > 0:
-            new_tournament_elements, new_lattice_elements, lattice_width, lattice_height, lattice_order, congruences_list = \
-                get_lattice_from_upper_matrix(matrix_value, n_value, input_method)
+            new_tournament_elements, new_lattice_elements, lattice_width, lattice_height, lattice_order, congruences_list,\
+            opposite_form = get_lattice_from_upper_matrix(graph_value, n_value, input_method)
+
+            opposite_form_value = f'graph6: ' if input_method == 'matrix' else f'Верхняя матричная форма: '
 
             return new_tournament_elements, new_lattice_elements, {'display': 'block'}, \
                    [
+                       html.P([opposite_form_value, html.P(opposite_form, className="h6")], className="inline_p"),
                        html.Label("Характеристики решетки:", className="h5", style={"margin-bottom": "15px"}),
                        html.P([f'Порядок: ', html.P(lattice_order, className="h6")], className="inline_p"),
                        html.P([f'Ширина: ', html.P(lattice_width, className="h6")], className="inline_p"),
