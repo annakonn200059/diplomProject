@@ -161,7 +161,7 @@ def register_one_lattice_callbacks(dash_app):
             new_tournament_elements, new_lattice_elements, lattice_width, lattice_height, lattice_order, congruences_list,\
             opposite_form = get_lattice_from_upper_matrix(graph_value, n_value, input_method)
 
-            opposite_form_value = f'graph6: ' if input_method == 'matrix' else f'Верхняя матричная форма: '
+            opposite_form_value = f'digraph6: ' if input_method == 'matrix' else f'Верхняя матричная форма: '
 
             return new_tournament_elements, new_lattice_elements, {'display': 'block'}, \
                    [

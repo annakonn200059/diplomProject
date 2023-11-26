@@ -20,7 +20,7 @@ class FormatInput:
             temp.append(node2)
             self.adjacency_list[node1] = temp
 
-    def graph6_to_directed_edges(self):
+    def digraph6_to_directed_edges(self):
         # Извлечение количества вершин из второго символа
         num_vertices = ord(self.upper_matrix_form[1]) - 63
 
@@ -82,9 +82,9 @@ class FormatInput:
             stop += stop - copy_cur - 1
         self.vertexes = list(set(self.vertexes))
 
-        # Возвращаем граф в формате graph6
-        graph6_string = self.to_graph6()
-        return self.edges_list, self.adjacency_list, self.vertexes, graph6_string
+        # Возвращаем граф в формате digraph6
+        digraph6_string = self.to_digraph6()
+        return self.edges_list, self.adjacency_list, self.vertexes, digraph6_string
 
     def upper_matrix_to_full_matrix(self):
         """
@@ -103,23 +103,23 @@ class FormatInput:
 
         return full_matrix
 
-    def to_graph6(self):
+    def to_digraph6(self):
         # Построение полной матрицы смежности из верхней матричной формы
         full_matrix = self.upper_matrix_to_full_matrix()
 
         # Преобразование полной матрицы смежности в бинарную строку
         binary_string = ''.join(''.join(row) for row in full_matrix)
 
-        # Дополнение бинарной строки нулями до кратности 6 для формата graph6
+        # Дополнение бинарной строки нулями до кратности 6 для формата digraph6
         while len(binary_string) % 6 != 0:
             binary_string += '0'
 
-        # Преобразование бинарной строки в строку формата graph6
+        # Преобразование бинарной строки в строку формата digraph6
         g6_str = '&'
         g6_str += chr(self.n + 63)  # Добавление символа для количества вершин
 
         for i in range(0, len(binary_string), 6):
-            # Конвертация каждой 6-битной группы в соответствующий символ graph6
+            # Конвертация каждой 6-битной группы в соответствующий символ digraph6
             char_code = int(binary_string[i:i+6], 2) + 63
             g6_str += chr(char_code)
 
