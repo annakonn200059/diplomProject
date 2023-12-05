@@ -132,7 +132,9 @@ def register_file_callbacks(dash_app):
             Output('slider_tournament', 'elements'),
             Output('slider_lattice', 'elements'),
             Output('upper-matrix', 'children'),
-            Output('current-graph-index', 'data')  # Скрытый div для хранения текущего индекса
+            Output('current-graph-index', 'data'),  # Скрытый div для хранения текущего индекса
+            Output('prev-button', 'disabled'),
+            Output('next-button', 'disabled')
         ],
         [
             Input('prev-button', 'n_clicks'),
@@ -158,11 +160,16 @@ def register_file_callbacks(dash_app):
         elif button_id == 'next-button' and current_index < len(store[0]) - 1:
             current_index += 1
 
+        disable_prev = current_index == 0
+        disable_next = current_index >= len(store[0]) - 1
+
         tournaments, lattices, upper_matrix = store
         return tournaments[current_index],\
                lattices[current_index], \
                html.P([f'Верхняя матричная форма: ', html.P(upper_matrix[current_index], className="h6")], className="inline_p"),\
-               current_index
+               current_index,\
+               disable_prev,\
+               disable_next
 
     @dash_app.callback(
         [
