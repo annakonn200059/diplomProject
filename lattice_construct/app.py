@@ -1,11 +1,10 @@
 import networkx as nx
 
 from dash_graphs.utils import add_progress_message
-from lattice_construct.files.draw_module import DrawGraphs
 from lattice_construct.lattices.lattice import Lattice
 from lattice_construct.tournaments.tournaments import Tournaments
 from lattice_construct.tournaments.formatInput import FormatInput
-from lattice_construct.utils import fill_dict, edges_to_cytoscape_format
+from lattice_construct.utils import edges_to_cytoscape_format
 
 
 def get_lattice_from_upper_matrix(graph_value, n, input_method):
@@ -31,13 +30,8 @@ def get_lattice_from_upper_matrix(graph_value, n, input_method):
 def get_all_lattices_from_file(fileWithTournaments):
     add_progress_message("Прогресс: начало обработки")
     n = int("".join(fileWithTournaments.readline()))
-    # app_root = os.path.dirname(os.path.abspath(__file__))
-    # target = os.path.join(app_root, 'tests', 'charachteristics')
-    draw = DrawGraphs()
-    order_dict = {}
-    height_dict = {}
-    width_dict = {}
     i = 0
+    tournaments, lattices, upper_matrixes = [], [], []
     # считываем турниры в формате верхней матричной формы и находим список дуг и список смежности
     while True:
         line = fileWithTournaments.readline()
@@ -45,21 +39,17 @@ def get_all_lattices_from_file(fileWithTournaments):
         if not line.strip():
             break
         upper_matrix_form = line.strip()
-        tournament_edges_list, adjacency_list, vertexes = FormatInput(upper_matrix_form,
+        tournament_edges_list, adjacency_list, vertexes, opposite_form = FormatInput(upper_matrix_form,
                                                                       n).upperTriangleToEdgeList()
         factor_arr = Tournaments(tournament_edges_list, adjacency_list, vertexes, n, upper_matrix_form).main_fun(i)
         lattice = Lattice(factor_arr)
         lattice_edges, lattice_width, lattice_height = lattice.main_fun()
-        # folder_name_for_lattice = upper_matrix_form
-        # draw.drawTournaments(tournament_list, folder_name_for_lattice)
-        # draw.saveCharachteristicsToOneFile(lattice_edges, folder_name_for_lattice, lattice_width, lattice_height)
         G = nx.Graph(lattice_edges)
         elements_amount = G.order()
-        fill_dict(order_dict, elements_amount, upper_matrix_form)
-        fill_dict(height_dict, lattice_height, upper_matrix_form)
-        fill_dict(width_dict, lattice_width, upper_matrix_form)
-        folder_name_for_lattice = upper_matrix_form
-        draw.drawLattice(lattice_edges, folder_name_for_lattice, lattice.flatten_arr)
-    draw.saveCharachteristicsToOneFile(order_dict, height_dict, width_dict, n)
+        tournaments.append(edges_to_cytoscape_format(tournament_edges_list))
+        lattices.append(edges_to_cytoscape_format(lattice_edges, lattice.flatten_arr))
+        upper_matrixes.append(upper_matrix_form)
+
     add_progress_message("", True)
+    return tournaments, lattices, upper_matrixes
 
