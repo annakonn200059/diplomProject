@@ -163,7 +163,9 @@ def register_one_lattice_callbacks(dash_app):
 
             opposite_form_value = f'digraph6: ' if input_method == 'matrix' else f'Верхняя матричная форма: '
 
-            return new_tournament_elements, new_lattice_elements, {'display': 'block'}, \
+            return new_tournament_elements,\
+                   new_lattice_elements,\
+                   {'display': 'block'}, \
                    [
                        html.P([opposite_form_value, html.P(opposite_form, className="h6")], className="inline_p"),
                        html.Label("Характеристики решетки:", className="h5", style={"margin-bottom": "15px"}),

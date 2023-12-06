@@ -31,7 +31,7 @@ def get_all_lattices_from_file(fileWithTournaments):
     add_progress_message("Прогресс: начало обработки")
     n = int("".join(fileWithTournaments.readline()))
     i = 0
-    tournaments, lattices, upper_matrixes = [], [], []
+    tournaments, lattices, upper_matrixes, lattice_order_list, lattice_width_list, lattice_height_list = [], [], [], [], [], []
     # считываем турниры в формате верхней матричной формы и находим список дуг и список смежности
     while True:
         line = fileWithTournaments.readline()
@@ -49,7 +49,10 @@ def get_all_lattices_from_file(fileWithTournaments):
         tournaments.append(edges_to_cytoscape_format(tournament_edges_list))
         lattices.append(edges_to_cytoscape_format(lattice_edges, lattice.flatten_arr))
         upper_matrixes.append(upper_matrix_form)
+        lattice_order_list.append(elements_amount)
+        lattice_width_list.append(lattice_width)
+        lattice_height_list.append(lattice_height)
 
     add_progress_message("", True)
-    return tournaments, lattices, upper_matrixes
+    return tournaments, lattices, upper_matrixes, lattice_order_list, lattice_width_list, lattice_height_list
 

@@ -74,7 +74,8 @@ several_lattices_selected_content = [
                             # style={'width': '100%'}
                         )
                     ], className='graph_container'),
-                    html.Div(id="upper-matrix", className="inline_p")
+                    html.Div(id="upper-matrix", className="inline_p", style={'align-items': 'flex-start'}),
+                    html.Div([], id="slider-characteristics", className='characteristics_container padding-container')
                 ],
                 style={'display': 'none'},
                 id='graphs-content',
@@ -117,14 +118,17 @@ def register_file_callbacks(dash_app):
         content_string = contents.split(',')[1]
         decoded_string = base64.b64decode(content_string).decode('utf-8')
         file_like_object = io.StringIO(decoded_string)
-        tournaments, lattices, upper_matrixes = get_all_lattices_from_file(file_like_object)
+        tournaments,\
+        lattices,\
+        upper_matrixes,\
+        lattice_order_list,\
+        lattice_width_list,\
+        lattice_height_list = get_all_lattices_from_file(file_like_object)
 
         # Как только функция завершится, лоадер исчезнет, поскольку мы обновляем 'output-txt-content'
         return None, \
-               [tournaments, lattices, upper_matrixes], \
-               {'display': 'grid', 'width': '100%', 'height': '100%', 'grid-template-columns': '1fr 1fr' }, \
-               #tournaments[0], \
-               #lattices[0]
+               [tournaments, lattices, upper_matrixes, lattice_order_list, lattice_width_list, lattice_height_list], \
+               {'display': 'grid', 'width': '100%', 'height': '100%', 'grid-template-columns': '1fr 1fr'}
 
     # Колбэк для обновления графов при нажатии на кнопки
     @dash_app.callback(
@@ -134,7 +138,8 @@ def register_file_callbacks(dash_app):
             Output('upper-matrix', 'children'),
             Output('current-graph-index', 'data'),  # Скрытый div для хранения текущего индекса
             Output('prev-button', 'disabled'),
-            Output('next-button', 'disabled')
+            Output('next-button', 'disabled'),
+            Output('slider-characteristics', 'children'),
         ],
         [
             Input('prev-button', 'n_clicks'),
@@ -163,13 +168,19 @@ def register_file_callbacks(dash_app):
         disable_prev = current_index == 0
         disable_next = current_index >= len(store[0]) - 1
 
-        tournaments, lattices, upper_matrix = store
+        tournaments, lattices, upper_matrix, lattice_order_list, lattice_width_list, lattice_height_list = store
         return tournaments[current_index],\
                lattices[current_index], \
                html.P([f'Верхняя матричная форма: ', html.P(upper_matrix[current_index], className="h6")], className="inline_p"),\
                current_index,\
                disable_prev,\
-               disable_next
+               disable_next,\
+               [
+                    html.Label("Характеристики решетки:", className="h5", style={"margin-bottom": "15px"}),
+                    html.P([f'Порядок: ', html.P(lattice_order_list[current_index], className="h6")], className="inline_p"),
+                    html.P([f'Ширина: ', html.P(lattice_width_list[current_index], className="h6")], className="inline_p"),
+                    html.P([f'Высота: ', html.P(lattice_height_list[current_index], className="h6")], className="inline_p")
+                ]
 
     @dash_app.callback(
         [
