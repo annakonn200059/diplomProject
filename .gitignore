@@ -153,5 +153,5 @@ naugthyTests
 *.zip
 *.pptx
 *.pdf
-11in.txt
-10in.txt
+in_files/11in.txt
+in_files/10in.txt
