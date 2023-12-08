@@ -30,5 +30,5 @@ pip install .
 ### Шаг 4: Запустить проект
 
 ```bash
-python main.py
+venv/bin/python main.py
 ```
