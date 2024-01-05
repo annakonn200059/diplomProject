@@ -7,7 +7,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from dash_graphs.components.utils import default_stylesheet
+from dash_graphs.components.utils import default_stylesheet, lattice_stylesheet
 from dash_graphs.utils import progress_info, reset_info_object
 from lattice_construct.app import get_all_lattices_from_file
 
@@ -70,7 +70,8 @@ several_lattices_selected_content = [
                         cyto.Cytoscape(
                             id='slider_lattice',
                             elements=[],
-                            layout={'name': 'preset'}
+                            layout={'name': 'preset'},
+                            stylesheet=lattice_stylesheet,
                             # style={'width': '100%'}
                         )
                     ], className='graph_container'),

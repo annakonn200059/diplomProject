@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 import dash_cytoscape as cyto
 from dash.exceptions import PreventUpdate
 
-from dash_graphs.components.utils import default_stylesheet
+from dash_graphs.components.utils import default_stylesheet, lattice_stylesheet
 from dash_graphs.utils import get_image, progress_info, reset_info_object
 from lattice_construct.app import get_lattice_from_upper_matrix
 
@@ -75,7 +75,8 @@ one_lattice_selected_content = [
             cyto.Cytoscape(
                 id='lattice',
                 elements=[],
-                layout={'name': 'preset'}
+                layout={'name': 'preset'},
+                stylesheet=lattice_stylesheet,
                 # style={'width': '100%'}
             ),
             html.Div(id='lattice-mouseoverNodeData', className="graph_bottom_container"),

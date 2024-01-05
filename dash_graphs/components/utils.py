@@ -10,6 +10,35 @@ default_stylesheet = [
         "selector": "node",
         "style": {
             "label": "data(label)",
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'color': 'white',
+            'background-color': '#0074D9'
         },
     },
+    {
+        'selector': 'node:selected',
+        'style': {
+            'background-color': '#FF4136'  # Цвет нажатой вершины
+        }
+    }
+]
+
+lattice_stylesheet = [
+    {
+        "selector": "node",
+        "style": {
+            "label": "data(label)",
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'color': 'white',
+            'background-color': '#0074D9'
+        },
+    },
+    {
+        'selector': 'node:selected',
+        'style': {
+            'background-color': '#FF4136'  # Цвет нажатой вершины
+        }
+    }
 ]
