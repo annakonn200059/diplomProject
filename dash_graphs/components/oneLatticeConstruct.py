@@ -130,8 +130,8 @@ def register_one_lattice_callbacks(dash_app):
             if not re.match(r'^\d+$', n_value):
                 return {'display': 'block'}, [html.P('n должно быть числом')]
 
-            if int(n_value) > 9:
-                return {'display': 'block'}, [html.P('Количество вершин ограничено 8')]
+            if int(n_value) > 11:
+                return {'display': 'block'}, [html.P('Количество вершин ограничено 11')]
 
         return {'display': 'none'}, None
 
