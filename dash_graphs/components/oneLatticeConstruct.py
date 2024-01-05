@@ -1,12 +1,12 @@
 import re
-
+import networkx as nx
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import dash_cytoscape as cyto
 from dash.exceptions import PreventUpdate
 
 from dash_graphs.components.utils import default_stylesheet, lattice_stylesheet
-from dash_graphs.utils import get_image, progress_info, reset_info_object
+from dash_graphs.utils import get_image, progress_info, reset_info_object, create_graphml
 from lattice_construct.app import get_lattice_from_upper_matrix
 
 # Контейнер для ввода верхней матричной формы
@@ -54,8 +54,13 @@ one_lattice_selected_content = [
         html.Div([
             html.Div([
                 html.Label("Турнир:"),
-                html.Button('import as jpg', id='import-tournament-button', disabled=True,
-                            className="btn btn-outline-secondary"),
+                html.Div([
+                    html.Button('import jpg', id='import-tournament-button', disabled=True,
+                                className="btn btn-outline-secondary", style={'margin-right': '10px'}),
+                    html.Button('import GraphML', id='import-graphml-tournament-button', disabled=True,
+                                className="btn btn-outline-secondary"),
+                    dcc.Download(id='download-tournament-graphml')
+                ])
             ], className='title_container'),
             cyto.Cytoscape(
                 id='tournament',
@@ -69,8 +74,13 @@ one_lattice_selected_content = [
         html.Div([
             html.Div([
                 html.Label("Решетка:"),
-                html.Button('import as jpg', id='import-lattice-button', disabled=True,
-                            className="btn btn-outline-secondary"),
+                html.Div([
+                    html.Button('import jpg', id='import-lattice-button', disabled=True,
+                                className="btn btn-outline-secondary", style={'margin-right': '10px'}),
+                    html.Button('import GraphML', id='import-graphml-lattice-button', disabled=True,
+                                className="btn btn-outline-secondary"),
+                    dcc.Download(id='download-lattice-graphml')
+                ])
             ], className='title_container'),
             cyto.Cytoscape(
                 id='lattice',
@@ -95,7 +105,8 @@ def register_one_lattice_callbacks(dash_app):
     @dash_app.callback(
         [
             Output("tournament", "generateImage"),
-            Output('import-tournament-button', 'disabled')
+            Output('import-tournament-button', 'disabled'),
+            Output('import-graphml-tournament-button', 'disabled')
         ],
         [
             Input('import-tournament-button', 'n_clicks'),
@@ -108,7 +119,8 @@ def register_one_lattice_callbacks(dash_app):
     @dash_app.callback(
         [
             Output("lattice", "generateImage"),
-            Output('import-lattice-button', 'disabled')
+            Output('import-lattice-button', 'disabled'),
+            Output('import-graphml-lattice-button', 'disabled')
         ],
         [
             Input('import-lattice-button', 'n_clicks'),
@@ -215,4 +227,54 @@ def register_one_lattice_callbacks(dash_app):
 
         return ""
 
+    @dash_app.callback(
+        Output('download-tournament-graphml', 'data'),
+        [Input('import-graphml-tournament-button', 'n_clicks')],
+        [State('tournament', 'elements')],
+        prevent_initial_call=True
+    )
+    def download_tournament_graphml(n_clicks, elements):
+        if n_clicks is None:
+            raise PreventUpdate
+
+        G = nx.DiGraph()
+        for element in elements:
+            if 'source' in element['data']:
+                G.add_edge(element['data']['source'], element['data']['target'])
+            else:
+                node_id = element['data']['id']
+                G.add_node(node_id)
+
+        # Генерация содержимого GraphML
+        graphml_content = create_graphml(G)
+
+        # Возвращаем объект для скачивания
+        return dict(content=graphml_content, filename="tournament.graphml")
+
+    @dash_app.callback(
+        Output('download-lattice-graphml', 'data'),
+        [Input('import-graphml-lattice-button', 'n_clicks')],
+        [State('lattice', 'elements')],
+        prevent_initial_call=True
+    )
+    def download_lattice_graphml(n_clicks, elements):
+        if n_clicks is None:
+            raise PreventUpdate
+
+        G = nx.Graph()
+        for element in elements:
+            if 'source' in element['data']:
+                G.add_edge(element['data']['source'], element['data']['target'])
+            else:
+                # Добавление узла с координатами
+                node_id = element['data']['id']
+                pos_x = element.get('position', {}).get('x', 0)
+                pos_y = element.get('position', {}).get('y', 0)
+                G.add_node(node_id, x=pos_x, y=pos_y)
+
+        # Генерация содержимого GraphML
+        graphml_content = create_graphml(G)
+
+        # Возвращаем объект для скачивания
+        return dict(content=graphml_content, filename="lattice.graphml")
 
