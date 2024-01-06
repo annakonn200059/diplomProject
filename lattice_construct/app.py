@@ -28,9 +28,10 @@ def get_lattice_from_upper_matrix(graph_value, n, input_method):
            lattice_width, lattice_height, elements_amount, lattice.flatten_arr, opposite_form
 
 
-def get_all_lattices_from_file(fileWithTournaments):
+def get_all_lattices_from_file(fileWithTournaments, n):
     add_progress_message("Прогресс: начало обработки")
-    n = int("".join(fileWithTournaments.readline()))
+    fileWithTournaments.readline()
+    n = int(n)
     i = 0
     tournaments, lattices, upper_matrixes, lattice_order_list, lattice_width_list, lattice_height_list = [], [], [], [], [], []
     vertexes = list(range(n))

@@ -1,5 +1,6 @@
 import base64
 import io
+import re
 
 import dash
 import dash_cytoscape as cyto
@@ -13,6 +14,13 @@ from lattice_construct.app import get_all_lattices_from_file
 
 several_lattices_selected_content = [
     html.Div([
+        html.Div([
+            html.Label("Введите количество вершин:", className="h6"),
+            html.Div([
+                dcc.Input(id='n_for_file', type='text', placeholder='n', className='input')
+            ]),
+            html.Div([], id='n_file_input_error', className='error-text'),
+        ], className='input_container', style={'margin-bottom': '20px'}),
         dcc.Upload(
             id='upload-txt-file',
             children=html.Div([
@@ -107,12 +115,16 @@ def register_file_callbacks(dash_app):
             Output('graphs_store', 'data'),
             Output('graphs-content', 'style'),
         ],
-        [Input('upload-txt-file', 'contents')]
+        [
+            Input('upload-txt-file', 'contents'),
+            Input('n_file_input_error', 'children')
+         ],
+        State('n_for_file', 'value'),
     )
-    def update_file_content(contents):
+    def update_file_content(contents, n_error_content, n_value):
         reset_info_object()
 
-        if contents is None:
+        if contents is None or n_error_content or not n_value:
             raise dash.exceptions.PreventUpdate
 
         # Декодирование и отображение содержимого файла
@@ -124,7 +136,7 @@ def register_file_callbacks(dash_app):
         upper_matrixes,\
         lattice_order_list,\
         lattice_width_list,\
-        lattice_height_list = get_all_lattices_from_file(file_like_object)
+        lattice_height_list = get_all_lattices_from_file(file_like_object, n_value)
 
         # Как только функция завершится, лоадер исчезнет, поскольку мы обновляем 'output-txt-content'
         return None, \
@@ -191,8 +203,36 @@ def register_file_callbacks(dash_app):
         Input('interval-component', 'n_intervals')
     )
     def update_progress(n):
+        if len(progress_info['errors']):
+            error_message = html.Div(
+                [html.P(e) for e in progress_info['errors']],
+                className='error-text'
+            )
+            return error_message, {'display': 'block'}
+
         last_message = [html.Div(progress_info['messages'][-1], className="h3") if progress_info['messages'] else None]
 
         if progress_info['complete']:
             return None, {'display': 'none'}
         return last_message, {'display': 'block'}
+
+    @dash_app.callback(
+        [
+            Output('n_file_input_error', 'style'),
+            Output('n_file_input_error', 'children'),
+        ],
+        Input('n_for_file', 'value'),
+        State('n_for_file', 'value')
+    )
+    def update_n_errors(n_cur_value, n_value):
+        if n_cur_value is None:
+            raise dash.exceptions.PreventUpdate
+
+        if n_cur_value and n_value:
+            if not re.match(r'^\d+$', n_value):
+                return {'display': 'block'}, [html.P('n должно быть числом')]
+
+            if int(n_value) > 11:
+                return {'display': 'block'}, [html.P('Количество вершин ограничено 11')]
+
+        return {'display': 'none'}, None
