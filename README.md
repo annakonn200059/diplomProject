@@ -1,34 +1,33 @@
-# Визуализация решеток конгруэнций турниров
+# Visualization of Congruence Lattices of Tournaments
 
-Данный модуль позволяет по введенному турниру построить и отобразить его решетку конгруэнций.
-Также имеется возможность загрузки файла с турнирами.
+This module allows you to construct and visualize the congruence lattice of a given tournament.  
+It also provides the ability to load tournaments from a file.
 
-## Запуск проекта
+## Running the Project
 
-Для запуска этого проекта на вашем локальном компьютере вне среды разработки PyCharm выполните следующие шаги.
+To run this project on your local machine outside of the PyCharm development environment, follow these steps.
 
-### Шаг 1: Создать виртуальную среду
+### Step 1: Create a Virtual Environment
 
-Создайте виртуальную среду для изоляции зависимостей проекта:
+Create a virtual environment to isolate project dependencies:
 
 ```bash
 python -m venv venv
 ```
 
-### Шаг 2: Активировать виртуальную среду
+### Step 2: Activate the Virtual Environment
 
 ```bash
 .\venv\Scripts\activate
 ```
 
-### Шаг 3: Установить зависимости проекта из файла setup.py
+### Step 3: Install Project Dependencies from setup.py
 
 ```bash
 pip install .
 ```
 
-### Шаг 4: Запустить проект
-
+### Step 4: Run the Project
 ```bash
 venv/bin/python main.py
 ```
